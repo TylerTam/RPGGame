@@ -16,7 +16,7 @@ UBoidHelper::UBoidHelper()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	if (directionsCreated) return;
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Recalculate!"));
+
 	// ...
 	directions.SetNum(numViewDirections);
 	float goldenRatio = (1 + FMath::Sqrt(5)) / 2;
