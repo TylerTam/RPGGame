@@ -54,10 +54,10 @@ public:
 
 		SHADER_PARAMETER_RDG_BUFFER_SRV(Buffer<int>, Input)
 		SHADER_PARAMETER_RDG_BUFFER_UAV(RWBuffer<int>, Output)
-		SHADER_PARAMETER_UAV(RWStructuredBuffer<FBoidProps>, BoidProps)
-		SHADER_PARAMETER_RDG_BUFFER_SRV(int, numBoids)
-		SHADER_PARAMETER_RDG_BUFFER_SRV(float, viewRadius)
-		SHADER_PARAMETER_RDG_BUFFER_SRV(float, avoidRadius)
+		//SHADER_PARAMETER_RDG_BUFFER_SRV(RWStructuredBuffer<Boid>, boids)
+		//SHADER_PARAMETER_RDG_BUFFER_SRV(Buffer<int>, numBoids)
+		//SHADER_PARAMETER_RDG_BUFFER_SRV(Buffer<float>, viewRadius)
+		//SHADER_PARAMETER_RDG_BUFFER_SRV(Buffer<float>, avoidRadius)
 
 
 		END_SHADER_PARAMETER_STRUCT()
@@ -101,7 +101,7 @@ private:
 //                            ShaderType                            ShaderPath                     Shader function name    Type
 IMPLEMENT_GLOBAL_SHADER(FMySimpleComputeShader, "/MyShadersShaders/MySimpleComputeShader.usf", "MySimpleComputeShader", SF_Compute);
 
-void FMySimpleComputeShaderInterface::DispatchRenderThread(FRHICommandListImmediate& RHICmdList, FMySimpleComputeShaderDispatchParams Params, TFunction<void(int OutputVal, TArray<FBoidProps> boidProps)> AsyncCallback) {
+void FMySimpleComputeShaderInterface::DispatchRenderThread(FRHICommandListImmediate& RHICmdList, FMySimpleComputeShaderDispatchParams Params, TFunction<void(int OutputVal/*, TArray<FBoidData> boidData*/)> AsyncCallback) {
 	FRDGBuilder GraphBuilder(RHICmdList);
 
 	{
@@ -157,11 +157,17 @@ void FMySimpleComputeShaderInterface::DispatchRenderThread(FRHICommandListImmedi
 
 					int32* Buffer = (int32*)GPUBufferReadback->Lock(1);
 					int OutVal = Buffer[0];
-					TArray<FBoidProps> outBoid = Buffer[1];
-					GPUBufferReadback->Unlock();
 
-					AsyncTask(ENamedThreads::GameThread, [AsyncCallback, OutVal, outBoid]() {
-						AsyncCallback(OutVal, outBoid);
+					GPUBufferReadback->Unlock();
+					//FBoidData boidDatas[5];
+					//TArray<FBoidData> boidData;
+
+					//int size = sizeof(boidDatas) / sizeof(boidDatas[0]);
+					//for (int i = 0; i < size; i++) {
+					//	boidData.Add(boidDatas[i]);
+					//}
+					AsyncTask(ENamedThreads::GameThread, [AsyncCallback, OutVal/*, boidData*/]() {
+						AsyncCallback(OutVal/*, boidData*/);
 						});
 
 					delete GPUBufferReadback;
