@@ -15,9 +15,11 @@ UBoidHelper::UBoidHelper()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	if (directionsCreated) return;
-
+	if (UBoidHelper::directionsCreated) return;
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Create array"));
 	// ...
+	UBoidHelper::directionsCreated = true;
 	directions.SetNum(numViewDirections);
 	float goldenRatio = (1 + FMath::Sqrt(5)) / 2;
 	float angleIncrement = PI* 2 * goldenRatio;
