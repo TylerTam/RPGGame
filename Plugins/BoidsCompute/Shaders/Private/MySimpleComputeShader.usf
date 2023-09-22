@@ -1,13 +1,51 @@
 #include "/Engine/Public/Platform.ush"
 
+
+struct Boid {
+    float3 position;
+    float3 direction;
+
+    float3 flockHeading;
+    float3 flockCentre;
+    float3 separationHeading;
+    int numFlockmates;
+};
+
 Buffer<int> Input;
 RWBuffer<int> Output;
 
+
+RWStructuredBuffer<Boid> boids;
+Buffer<int> numBoids;
+Buffer<float> viewRadius;
+Buffer<float> avoidRadius;
+
 [numthreads(THREADS_X, THREADS_Y, THREADS_Z)]
 void MySimpleComputeShader(
-	uint3 DispatchThreadId : SV_DispatchThreadID,
+	uint3 id : SV_DispatchThreadID,
 	uint GroupIndex : SV_GroupIndex )
 {
 	// Outputs one number
 	Output[0] = Input[0] * Input[1];
+
+
+
+
+    for (int indexB = 0; indexB < numBoids; indexB ++) {
+        if (id.x != indexB) {
+            Boid boidB = boids[indexB];
+            float3 offset = boidB.position - boids[id.x].position;
+            float sqrDst = offset.x * offset.x + offset.y * offset.y + offset.z * offset.z;
+
+            if (sqrDst < viewRadius * viewRadius) {
+                boids[id.x].numFlockmates += 1;
+                boids[id.x].flockHeading += boidB.direction;
+                boids[id.x].flockCentre += boidB.position;
+
+                if (sqrDst < avoidRadius * avoidRadius) {
+                    boids[id.x].separationHeading -= offset / sqrDst;
+                }
+            }
+        }
+    }
 }
